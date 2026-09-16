@@ -4,8 +4,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>xl: Excel verification for Claude Code</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans+Condensed:wght@500;600;700&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap">
 <style>
   :root{
     --ground:#F4F6F3; --surface:#FFFFFF; --ink:#18211D; --muted:#5A6760; --line:#D9DFD9;
@@ -43,6 +43,17 @@
   .meta b{color:var(--ink)}
   .meta a,footer a,.steps .s a{color:var(--accent)}
   .steps .shared-fallback{margin-top:6px}
+
+  html{scroll-padding-top:64px}
+  @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+  .secnav{position:sticky;top:0;z-index:50;margin-inline:-20px;padding-inline:20px;background:color-mix(in srgb,var(--ground) 90%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .secnav-in{max-width:820px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-block:10px}
+  .secnav-in::-webkit-scrollbar{display:none}
+  .secnav a{flex:0 0 auto;font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:6px 11px;border-radius:999px;white-space:nowrap}
+  .secnav a:hover{color:var(--ink);background:var(--surface)}
+  .secnav a.on{color:var(--accent);background:var(--accent-soft)}
+  .secnav a.cta,.secnav a.cta.on{margin-left:auto;color:var(--surface);background:var(--accent)}
+  .secnav a:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 
   header{padding-block:30px 30px;border-bottom:1px solid var(--line)}
   .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted);margin:0 0 10px}
@@ -162,10 +173,22 @@
     html,body{background:#fff}
     .copy{display:none}
     section,.card,.stat,.fnode,.steps > li{break-inside:avoid}
+    .secnav{display:none}
   }
 </style>
-</head>
+<style></style></head>
 <body>
+<nav class="secnav" aria-label="Page sections">
+  <div class="secnav-in">
+    <a href="#overview">Overview</a>
+    <a href="#problem">The problem</a>
+    <a href="#ask">What you can ask</a>
+    <a href="#evidence">Why xl matters</a>
+    <a href="#checks">18 checks</a>
+    <a href="#how">How it works</a>
+    <a href="#install" class="cta">Install</a>
+  </div>
+</nav>
 <div class="wrap">
 
   <div class="topbar">
@@ -173,7 +196,7 @@
     <div class="meta">Version 0.9 · September 2026 · by <b>BCN TMT Labs</b> · <a href="https://github.com/Ignacioelias/xl">GitHub</a></div>
   </div>
 
-  <header>
+  <header id="overview">
     <p class="eyebrow">Open source · Windows · Apache-2.0</p>
     <h1>xl is a Claude add-on that forces AI to work on Excel the way an analyst would</h1>
     <p class="lede">Working with <b>Claude in Excel can be nice</b> if you know how to use it. <b>It can help you understand how a model is built, derive insights, edit inputs, generate think-cell-ready tabs, etc.</b> However, working with Claude in Excel by default is tedious:</p>
@@ -192,11 +215,11 @@
       <div class="vcol xl">
         <h2>BCN TMT Labs fixes that</h2>
         <ul>
-          <li>We cut <b>response time by 57–75%</b></li>
-          <li>We force Claude to <b>never hardcode values</b> by default</li>
-          <li>We make it <b>cite the reference cell</b> for every number it gives</li>
-          <li>We fixed the root cause of the mistakes, so it <b>doesn't miss things</b></li>
-          <li>We cut the <b>token cost</b> of working in Excel by <b>~10%</b></li>
+          <li>Cuts&nbsp;<b>response time by 50–75%</b></li>
+          <li>Forces Claude to&nbsp;<b>never hardcode values</b> by default</li>
+          <li>Cites<b> the reference cell</b> for every number it gives</li>
+          <li><b>Doesn't miss mistakes as&nbsp;</b></li>
+          <li>Cuts <b>token cost</b> of working in Excel by <b>~10-20%</b></li>
         </ul>
       </div>
     </div>
@@ -207,77 +230,73 @@
     </div>
   </header>
 
-  <section>
+  <section id="problem">
     <h2>The root of the problem</h2>
-    <p>Claude Code has no built-in way to read a spreadsheet. When you ask about a workbook, it writes a short Python script using <b>openpyxl</b> (a library that unzips the .xlsx and reads its XML), runs it, reads what it prints, and then the script ends. For the next question it writes a new script, which starts a new Python process that loads the whole file again. On a 50-sheet business plan that takes 13 to 18 seconds, every time.</p>
-    <p>openpyxl can see formulas as text, and it can see the values Excel stored the last time someone saved the file. It cannot calculate. So when a question needs a number that isn't already stored ("what if churn were 5%?"), plain Claude either rebuilds the model's logic in Python, where it can easily get the arithmetic wrong, or trusts stored values that may be out of date.</p>
+    <p>Claude Code has no built-in way to read a spreadsheet.&nbsp;</p><p>When you ask about a workbook, it writes a short Python script using <b>Openpyxl</b> (a library that unzips the .xlsx and reads its XML), runs it, reads what it prints, and then the script ends.&nbsp;</p><p>For the next question it writes a new script, which starts a new Python process that loads the whole file again. On a large business plan that takes 13 to 18 seconds, every time.</p>
+    <p><b>Openpyxl </b>can see formulas as text, and it can see the values Excel stored the last time someone saved the file. It cannot calculate.&nbsp;</p><p>So when a question needs a number that isn't already stored ("what if churn were 5%?"), plain Claude either rebuilds the model's logic in Python, where it can easily get the arithmetic wrong, or trusts stored values that may be out of date.</p>
     <p><b>xl changes two things.</b> The workbook opens once and stays in memory, so each follow-up question is answered in about a second. And any number that matters is calculated by Excel itself, running hidden in the background, so the answer is what Excel would show, with the cell reference attached (for example <span class="addr">Summary!D42</span>) so you can check it yourself.</p>
 
     <figure>
       <div class="dg">
         <svg viewBox="0 0 820 372" role="img" aria-label="Without xl, every question starts a new Python process that reloads the whole file. With xl, a short-lived command talks to a kernel that keeps the file in memory, sends calculations to a hidden Excel and runs the open test in a throwaway Excel.">
           <defs>
-            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker>
-            <marker id="ahc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-cost"/></marker>
-            <marker id="ahk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-k"/></marker>
-            <marker id="ahm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-m"/></marker>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"></path></marker>
+            <marker id="ahc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-cost"></path></marker>
+            <marker id="ahk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-k"></path></marker>
+            <marker id="ahm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-m"></path></marker>
           </defs>
 
           <text x="10" y="22" class="lane">WITHOUT XL · REPEATED FOR EVERY QUESTION</text>
-          <rect x="10" y="40" width="110" height="48" rx="8" class="box"/>
+          <rect x="10" y="40" width="110" height="48" rx="8" class="box"></rect>
           <text x="65" y="69" text-anchor="middle" class="t">Claude Code</text>
-          <rect x="260" y="40" width="170" height="48" rx="8" class="box"/>
+          <rect x="260" y="40" width="170" height="48" rx="8" class="box"></rect>
           <text x="345" y="60" text-anchor="middle" class="t">New Python process</text>
           <text x="345" y="77" text-anchor="middle" class="s">does its own arithmetic</text>
-          <rect x="600" y="40" width="210" height="48" rx="8" class="box-cost"/>
+          <rect x="600" y="40" width="210" height="48" rx="8" class="box-cost"></rect>
           <text x="705" y="60" text-anchor="middle" class="t">model.xlsx on disk</text>
           <text x="705" y="77" text-anchor="middle" class="s">10 MB, 50 sheets</text>
-          <line x1="120" y1="64" x2="256" y2="64" class="ln" marker-end="url(#ah)"/>
+          <line x1="120" y1="64" x2="256" y2="64" class="ln" marker-end="url(#ah)"></line>
           <text x="188" y="56" text-anchor="middle" class="lab">writes a script</text>
-          <line x1="430" y1="64" x2="596" y2="64" class="ln-cost" marker-end="url(#ahc)"/>
+          <line x1="430" y1="64" x2="596" y2="64" class="ln-cost" marker-end="url(#ahc)"></line>
           <text x="513" y="56" text-anchor="middle" class="lab-cost">full reload · 13–18 s</text>
-          <path d="M345,88 V112 H65 V92" class="ln-dash" marker-end="url(#ahm)"/>
+          <path d="M345,88 V112 H65 V92" class="ln-dash" marker-end="url(#ahm)"></path>
           <text x="205" y="128" text-anchor="middle" class="lab">process exits, memory is lost</text>
 
-          <line x1="10" y1="150" x2="810" y2="150" class="div"/>
+          <line x1="10" y1="150" x2="810" y2="150" class="div"></line>
 
           <text x="10" y="176" class="lane">WITH XL · LOAD ONCE, ASK MANY</text>
-          <rect x="10" y="246" width="110" height="48" rx="8" class="box"/>
+          <rect x="10" y="246" width="110" height="48" rx="8" class="box"></rect>
           <text x="65" y="275" text-anchor="middle" class="t">Claude Code</text>
-          <rect x="175" y="246" width="110" height="48" rx="8" class="box"/>
+          <rect x="175" y="246" width="110" height="48" rx="8" class="box"></rect>
           <text x="230" y="266" text-anchor="middle" class="t">xl command</text>
           <text x="230" y="283" text-anchor="middle" class="s">starts, sends, exits</text>
-          <rect x="350" y="190" width="130" height="160" rx="10" class="box-k"/>
+          <rect x="350" y="190" width="130" height="160" rx="10" class="box-k"></rect>
           <text x="415" y="250" text-anchor="middle" class="t">xl kernel</text>
           <text x="415" y="268" text-anchor="middle" class="s">one per session</text>
           <text x="415" y="284" text-anchor="middle" class="s">stays up 3 h idle</text>
           <text x="415" y="300" text-anchor="middle" class="s">variables persist</text>
-          <rect x="600" y="190" width="210" height="44" rx="8" class="box-x"/>
+          <rect x="600" y="190" width="210" height="44" rx="8" class="box-x"></rect>
           <text x="705" y="208" text-anchor="middle" class="t">openpyxl copy in memory</text>
           <text x="705" y="224" text-anchor="middle" class="s">formulas + last-saved values</text>
-          <rect x="600" y="248" width="210" height="44" rx="8" class="box-k"/>
+          <rect x="600" y="248" width="210" height="44" rx="8" class="box-k"></rect>
           <text x="705" y="266" text-anchor="middle" class="t">Hidden Excel (private)</text>
           <text x="705" y="282" text-anchor="middle" class="s">manual calc, macros off</text>
-          <rect x="600" y="306" width="210" height="44" rx="8" class="box"/>
-          <text x="705" y="324" text-anchor="middle" class="t">Throwaway Excel</text>
-          <text x="705" y="340" text-anchor="middle" class="s">alerts on, killed after the test</text>
-          <line x1="120" y1="270" x2="171" y2="270" class="ln" marker-end="url(#ah)"/>
-          <text x="146" y="262" text-anchor="middle" class="lab">script</text>
-          <line x1="285" y1="270" x2="346" y2="270" class="ln" marker-end="url(#ah)"/>
+          <rect x="600" y="306" width="210" height="44" rx="8" class="box"></rect>
+          <text x="705" y="324" text-anchor="middle" class="t">Gives you the Excel answer&nbsp;</text><text x="146" y="262" text-anchor="middle" class="lab"></text>
+          <line x1="285" y1="270" x2="346" y2="270" class="ln" marker-end="url(#ah)"></line>
           <text x="316" y="262" text-anchor="middle" class="lab">TCP</text>
-          <line x1="480" y1="212" x2="596" y2="212" class="ln" marker-end="url(#ah)"/>
+          <line x1="480" y1="212" x2="596" y2="212" class="ln" marker-end="url(#ah)"></line>
           <text x="538" y="204" text-anchor="middle" class="lab">reads · ~1 s</text>
-          <line x1="480" y1="270" x2="596" y2="270" class="ln-k" marker-end="url(#ahk)"/>
+          <line x1="480" y1="270" x2="596" y2="270" class="ln-k" marker-end="url(#ahk)"></line>
           <text x="538" y="262" text-anchor="middle" class="lab">computes</text>
-          <line x1="480" y1="328" x2="596" y2="328" class="ln" marker-end="url(#ah)"/>
+          <line x1="480" y1="328" x2="596" y2="328" class="ln" marker-end="url(#ah)"></line>
           <text x="538" y="320" text-anchor="middle" class="lab">open test</text>
         </svg>
       </div>
-      <figcaption>With xl, the kernel loads the file once and reloads it only when the file's date or size changes. Reading goes to openpyxl, and any number that has to be calculated goes to Excel. Before a file is handed over, a throwaway Excel with alerts switched on opens it to confirm there is no repair prompt.</figcaption>
     </figure>
   </section>
 
-  <section>
+  <section id="ask">
     <h2>What you can ask it to do</h2>
     <div class="cards">
       <div class="card"><span class="q">“What is in this model?”</span><p>Lists sheets, main tables, named ranges and which sheets feed which. “Where is EBITDA?” finds every cell with that label.</p></div>
@@ -288,7 +307,7 @@
     </div>
   </section>
 
-  <section>
+  <section id="evidence">
     <h2>Why xl matters</h2>
     <p class="sub">Same questions, same model, without and with xl</p>
     <div class="stats">
@@ -313,7 +332,7 @@
     <p class="method">Indicative: one model, one model family, one or two runs per condition, September 2026. The model is confidential, so these runs can't be reproduced from the repository.</p>
   </section>
 
-  <section>
+  <section id="checks">
     <h2>The 18 checks it performs</h2>
     <p class="sub">They mirror errors found in real financial models</p>
     <div class="chips">
@@ -339,7 +358,7 @@
     <div class="callout"><p><b>A real example.</b> On one real business plan, the first run found 14 of 15 named ranges broken, more than 10,000 cells carrying a cached error, and a formula-pattern break on row 334 of every cohort sheet.</p></div>
   </section>
 
-  <section>
+  <section id="how">
     <h2>How it works</h2>
     <div class="flow">
       <div class="fnode"><span class="t">You</span><span class="d">Ask Claude Code a question about a workbook, in plain English or Spanish.</span></div>
@@ -351,7 +370,7 @@
     <p class="aside">xl is a standalone command-line program with its own persistent kernel, so it keeps working if a given chat tool is unavailable. Every command runs the same way when typed by hand in a plain terminal, although using it that way takes some Python. Claude Code is one way to drive it: a lightweight skill teaches Claude when to reach for xl, and a hook runs a quick check after every edit. It is an independent open-source project, not an official Anthropic product.</p>
   </section>
 
-  <section>
+  <section id="install">
     <h2>How to install</h2>
     <p class="sub">Windows laptop with Excel and Claude Code · about 5 minutes</p>
     <ol class="steps">
@@ -368,7 +387,7 @@
 3. It must end with six PASS lines and "All checks passed." On any FAIL, show me the exact output and stop.
 4. Run `xl help` (fallback: py -3.14 "%USERPROFILE%\tools\xl\xlcli.py" help) and confirm it prints the command list.
 5. Tell me in three lines that xl is installed and what I can ask you now. Do not change anything else on my machine.</div>
-        <button class="copy" type="button" onclick="navigator.clipboard.writeText(document.getElementById('prompt').innerText).then(()=>{this.textContent='Copied'})">Copy prompt</button>
+        <button class="copy" type="button" onclick="navigator.clipboard.writeText(document.getElementById('prompt').innerText).then(()=&gt;{this.textContent='Copied'})">Copy prompt</button>
       </div></li>
       <li><div class="body">
         <span class="t">Claude runs the installer for you</span>
@@ -399,4 +418,27 @@ Summary!D42  EBITDA 2028 = 12.4m ...</span></div>
   <footer>© 2026 Ignacio Elías · <a href="https://github.com/Ignacioelias/xl/blob/main/LICENSE">Apache License 2.0</a> · Not affiliated with Anthropic</footer>
 
 </div>
+
+<script id="secnav-js">
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.secnav a[href^="#"]'));
+  var byId = {};
+  links.forEach(function (a) {
+    a.classList.remove('on');
+    var t = document.getElementById(a.getAttribute('href').slice(1));
+    if (t) byId[t.id] = a;
+  });
+  if (!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      var a = byId[e.target.id];
+      links.forEach(function (l) { l.classList.toggle('on', l === a); });
+      var bar = a.parentNode;
+      if (bar.scrollWidth > bar.clientWidth) bar.scrollTo({left: a.offsetLeft - 16, behavior: 'smooth'});
+    });
+  }, {rootMargin: '-40% 0px -55% 0px'});
+  Object.keys(byId).forEach(function (id) { io.observe(document.getElementById(id)); });
+})();
+</script>
 </body></html>

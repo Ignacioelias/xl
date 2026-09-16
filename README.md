@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/readme/hero-dark.png">
-  <img src="docs/readme/hero-light.png" width="100%" alt="xl is a Claude add-on that forces AI to work on Excel the way an analyst would. By default Claude in Excel is slow, hardcodes values, forgets to name the reference cell, misses mistakes and burns a lot of tokens. BCN TMT Labs fixes that: response time down 57 to 75%, no hardcoded values by default, a reference cell for every number, the root cause of the mistakes fixed, and token cost down about 10%.">
+  <img src="docs/readme/hero-light.png" width="100%" alt="xl is a Claude add-on that forces AI to work on Excel the way an analyst would. By default Claude in Excel is slow, hardcodes values, forgets to name the reference cell, misses mistakes and burns a lot of tokens. BCN TMT Labs fixes that: it cuts response time by 50 to 75%, forces Claude to never hardcode values by default, cites the reference cell for every number, doesn't miss mistakes, and cuts the token cost of working in Excel by about 10 to 20%.">
 </picture>
 
 **Needs:** Windows · desktop Excel · [Claude Code](https://claude.com/claude-code) &nbsp;|&nbsp;
@@ -26,7 +26,7 @@ hidden in the background, so the answer is what Excel would show, with the cell 
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/readme/diagram-dark.png">
-  <img src="docs/readme/diagram-light.png" width="100%" alt="Without xl, Claude Code writes a script, a new Python process does its own arithmetic and fully reloads the 10 MB workbook (13 to 18 s), then exits and loses its memory; this repeats for every question. With xl, Claude Code sends a script through the short-lived xl command over TCP to the xl kernel, which stays up and keeps variables; the kernel reads from an openpyxl copy in memory in about a second, computes in a private hidden Excel, and runs the open test in a throwaway Excel with alerts on.">
+  <img src="docs/readme/diagram-light.png" width="100%" alt="Without xl, Claude Code writes a script, a new Python process does its own arithmetic and fully reloads the 10 MB workbook (13 to 18 s), then exits and loses its memory; this repeats for every question. With xl, the short-lived xl command talks over TCP to the xl kernel, which stays up and keeps variables; the kernel reads from an openpyxl copy in memory in about a second, computes in a private hidden Excel, and runs the open test that gives you the Excel answer.">
 </picture>
 
 *With xl, the kernel loads the file once and reloads it only when the file's date or size
