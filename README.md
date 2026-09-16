@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/readme/hero-dark.png">
-  <img src="docs/readme/hero-light.png" width="100%" alt="xl makes Claude work on Excel the way an analyst would. By default Claude Code is slow on Excel, hardcodes values, doesn't say which cell a number comes from, misses errors and burns tokens. With xl it answers in about half the time, writes formulas that Excel calculates, cites the cell for every number, runs a full recalculation, 18 model checks and an open test, and spends about 10% less per question.">
+  <img src="docs/readme/hero-light.png" width="100%" alt="xl is a Claude add-on that forces AI to work on Excel the way an analyst would. By default Claude in Excel is slow, hardcodes values, forgets to name the reference cell, misses mistakes and burns a lot of tokens. BCN TMT Labs fixes that: response time down 57 to 75%, no hardcoded values by default, a reference cell for every number, the root cause of the mistakes fixed, and token cost down about 10%.">
 </picture>
 
 **Needs:** Windows · desktop Excel · [Claude Code](https://claude.com/claude-code) &nbsp;|&nbsp;

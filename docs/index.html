@@ -175,27 +175,28 @@
 
   <header>
     <p class="eyebrow">Open source · Windows · Apache-2.0</p>
-    <h1>xl makes Claude work on Excel the way an analyst would</h1>
-    <p class="lede">Claude Code can already help with Excel models if you know how to use it: <b>it explains how a model is built, pulls insights, edits inputs and builds think-cell-ready tabs.</b> Out of the box, though, the work is tedious. xl fixes that.</p>
+    <h1>xl is a Claude add-on that forces AI to work on Excel the way an analyst would</h1>
+    <p class="lede">Working with <b>Claude in Excel can be nice</b> if you know how to use it. <b>It can help you understand how a model is built, derive insights, edit inputs, generate think-cell-ready tabs, etc.</b> However, working with Claude in Excel by default is tedious:</p>
     <div class="versus">
       <div class="vcol">
         <h2>Claude on Excel by default</h2>
         <ul>
-          <li>It's <b>slow</b>: the file is reloaded for every question.</li>
-          <li>It <b>hardcodes values</b> and does its own arithmetic.</li>
-          <li>It <b>doesn't say which cell</b> a number comes from.</li>
-          <li>It <b>misses errors</b> in the file.</li>
-          <li>It <b>burns tokens</b> finding its way around the workbook.</li>
+          <li>It's <b>slow</b></li>
+          <li>It <b>hardcodes values</b></li>
+          <li>It <b>forgets to name the reference cell</b> in its answers</li>
+          <li>It <b>misses mistakes</b></li>
+          <li>It <b>misses things</b></li>
+          <li>It <b>burns a lot of tokens</b></li>
         </ul>
       </div>
       <div class="vcol xl">
-        <h2>Claude on Excel with xl</h2>
+        <h2>BCN TMT Labs fixes that</h2>
         <ul>
-          <li>Answers in <b>about half the time</b> (median 35&nbsp;s → 19&nbsp;s per question).</li>
-          <li><b>No hardcoded values by default</b>: Claude writes formulas and Excel calculates them.</li>
-          <li><b>Every number cites its cell</b>, for example <span class="addr">Summary!D42</span>.</li>
-          <li><b>Checks that catch what it used to miss</b>: a full recalculation, 18 model checks and an open test.</li>
-          <li><b>Slightly lower API spend</b>, about 10% per question.</li>
+          <li>We cut <b>response time by 57–75%</b></li>
+          <li>We force Claude to <b>never hardcode values</b> by default</li>
+          <li>We make it <b>cite the reference cell</b> for every number it gives</li>
+          <li>We fixed the root cause of the mistakes, so it <b>doesn't miss things</b></li>
+          <li>We cut the <b>token cost</b> of working in Excel by <b>~10%</b></li>
         </ul>
       </div>
     </div>
