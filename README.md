@@ -64,10 +64,12 @@ with xl.
 | Turns per question (median) | 3 to 3.5 | 3 final run<br>5 to 8 earlier | Without xl, Claude also needed about 3 turns. The drop to 3 with xl came from rewriting the skill that teaches Claude the tool. |
 | Median time per question | 35 to 39 s | 19 s | Roughly half. |
 | Cost per 10 questions | $1.72 to $1.84 | $1.61 | About 10% lower. |
-| Scripted load test (8 questions, no AI) | 155.9 s | 44.0 s | Claude is left out, so this times only how fast the file is handled. xl keeps the workbook open between questions instead of reopening it for each one ([`bench/bench_repl_vs_scripts.py`](bench/bench_repl_vs_scripts.py)). |
+| Time to answer the 10 questions | 610 to 1,021 s | 260 s | 57 to 75% faster. |
 
 Indicative: one model, one model family, one or two runs per condition, September 2026. The model
-is confidential, so these runs can't be reproduced from this repository.
+is confidential, so these runs can't be reproduced from this repository. The scripted load test
+behind the 156 s to 44 s figure (8 questions, no AI) is
+[`bench/bench_repl_vs_scripts.py`](bench/bench_repl_vs_scripts.py).
 
 ## The 18 checks it performs
 
