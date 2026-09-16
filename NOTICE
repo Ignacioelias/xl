@@ -1,0 +1,9 @@
+xl
+Copyright 2026 Ignacio Elías
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Design credit: the approach of xl (a persistent workbook REPL for the agent, openpyxl for
+reading with a real spreadsheet engine for verification, and hard rules such as checking
+errors after every write, computing only in the engine and citing Sheet!Address) follows the
+public research log published by Witan Labs: https://github.com/witanlabs/research-log

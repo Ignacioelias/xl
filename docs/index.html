@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>xl: Excel verification for Claude Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+  :root{
+    --ground:#F4F6F3; --surface:#FFFFFF; --ink:#18211D; --muted:#5A6760; --line:#D9DFD9;
+    --accent:#1D7348; --accent-soft:#E3F1E8; --blue:#335A93; --blue-soft:#E6EDF7;
+    --amber:#9A5B00; --amber-soft:#FBF0DC; --code-bg:#EDF1EC;
+    --term-bg:#18211D; --term-ink:#DCE5DF; --term-dim:#8FA197; --term-ok:#7FD4A2;
+    --sans:"IBM Plex Sans",system-ui,"Segoe UI",Arial,sans-serif;
+    --cond:"IBM Plex Sans Condensed",Bahnschrift,"Arial Narrow","Segoe UI",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",Consolas,"Courier New",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ground:#111512; --surface:#181E1A; --ink:#E3E9E4; --muted:#9BA8A0; --line:#2B332E;
+      --accent:#5BC48C; --accent-soft:#1C3326; --blue:#8DB0E6; --blue-soft:#1C2636;
+      --amber:#E8AE55; --amber-soft:#33270F; --code-bg:#1E2521;
+      --term-bg:#0B0F0D; --term-ink:#D2DCD5; --term-dim:#7F9187; --term-ok:#6FCB96;
+    }
+  }
+
+  *{box-sizing:border-box}
+  html{background:var(--ground)}
+  body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.62;margin:0;padding-inline:20px;padding-block:0 72px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:820px;margin:0 auto}
+  p,li{max-width:70ch}
+  p{margin:0 0 12px}
+  a{color:var(--blue)}
+  b,strong{font-weight:600}
+  code,.addr{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:.08em .38em;border-radius:4px;white-space:nowrap}
+  .addr{color:var(--accent)}
+
+  .topbar{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px 16px;padding-block:22px 0}
+  .brand{font-family:var(--cond);font-weight:700;letter-spacing:.14em;font-size:13px}
+  .brand span{color:var(--accent)}
+  .meta{font-size:13px;color:var(--muted)}
+  .meta b{color:var(--ink)}
+  .meta a,footer a{color:var(--accent)}
+
+  header{padding-block:30px 30px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted);margin:0 0 10px}
+  h1{font-family:var(--cond);font-weight:700;font-size:clamp(32px,5.6vw,46px);line-height:1.06;margin:0 0 16px;letter-spacing:-.01em;text-wrap:balance;max-width:20ch}
+  .lede{font-size:18px;color:var(--muted);margin:0 0 22px}
+  .lede b{color:var(--ink)}
+  .versus{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .vcol{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .vcol.xl{border-color:var(--accent);background:var(--accent-soft)}
+  .vcol h2{font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+  .vcol.xl h2{color:var(--accent)}
+  .vcol ul{margin:0;padding-left:1.1em}
+  .vcol li{margin-bottom:6px;font-size:15px}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .pill{font-size:13.5px;font-weight:500;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 12px;display:flex;align-items:center;gap:8px}
+  .pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);flex:0 0 auto}
+
+  section{padding-block:38px 4px}
+  section h2{font-family:var(--cond);font-weight:600;font-size:26px;line-height:1.2;margin:0 0 4px;text-wrap:balance}
+  .sub{color:var(--muted);font-size:14.5px;margin:0 0 16px}
+  h3{font-family:var(--cond);font-weight:600;font-size:19px;margin:28px 0 6px}
+  section > h2 + p, section > h2 + .cards, section > h2 + .flow{margin-top:14px}
+
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .card.wide{grid-column:1 / -1}
+  .card .q{font-family:var(--cond);font-weight:600;font-size:17px;display:block;margin-bottom:4px}
+  .card p{margin:0;color:var(--muted);font-size:15px}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .stat .change{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+  .stat .old{font-size:17px;color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+  .stat .arr{color:var(--muted);font-size:14px}
+  .stat .new{font-family:var(--cond);font-size:28px;font-weight:700;color:var(--accent);line-height:1}
+  .stat .label{color:var(--muted);font-size:13px;margin-top:8px;line-height:1.45}
+
+  .tbl{overflow-x:auto;margin:12px 0 8px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:600px}
+  th,td{text-align:left;vertical-align:top;padding:10px 14px;border-bottom:1px solid var(--line)}
+  tr:last-child td{border-bottom:0}
+  th{font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:var(--ground)}
+  th:first-child{width:24%}
+  th:nth-child(2),th:nth-child(3){width:16%}
+  td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .rowhead{font-weight:600}
+  .method{font-size:13.5px;color:var(--muted);margin-top:10px}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 18px}
+  .chip{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 12px;font-size:14px}
+  .chip::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);flex:0 0 auto}
+  .callout{background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:10px;padding:14px 18px}
+  .callout p{margin:0;max-width:none}
+
+  figure{margin:18px 0 8px}
+  .dg{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 10px}
+  .dg svg{display:block;width:100%;min-width:680px;height:auto;color:var(--ink)}
+  .dg .box{fill:var(--surface);stroke:var(--line);stroke-width:1.5}
+  .dg .box-k{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.8}
+  .dg .box-x{fill:var(--blue-soft);stroke:var(--blue);stroke-width:1.5}
+  .dg .box-cost{fill:var(--amber-soft);stroke:var(--amber);stroke-width:1.5}
+  .dg .t{fill:currentColor;font-family:var(--sans);font-size:13px;font-weight:600}
+  .dg .s{fill:var(--muted);font-family:var(--sans);font-size:11px}
+  .dg .lab{fill:var(--muted);font-family:var(--mono);font-size:11px}
+  .dg .lab-cost{fill:var(--amber);font-family:var(--mono);font-size:11px;font-weight:500}
+  .dg .lane{fill:var(--muted);font-family:var(--cond);font-size:12px;font-weight:600;letter-spacing:.08em}
+  .dg .ln{stroke:currentColor;stroke-width:1.4;fill:none}
+  .dg .ln-cost{stroke:var(--amber);stroke-width:1.8;fill:none}
+  .dg .ln-dash{stroke:var(--muted);stroke-width:1.3;fill:none;stroke-dasharray:5 4}
+  .dg .ln-k{stroke:var(--accent);stroke-width:1.6;fill:none}
+  .dg .div{stroke:var(--line);stroke-width:1}
+  .dg .head{fill:currentColor}
+  .dg .head-cost{fill:var(--amber)}
+  .dg .head-k{fill:var(--accent)}
+  .dg .head-m{fill:var(--muted)}
+  figcaption{font-size:14px;color:var(--muted);margin-top:10px;max-width:74ch}
+
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;counter-reset:f}
+  .fnode{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;position:relative}
+  .fnode.engine{border-color:var(--accent);background:var(--accent-soft)}
+  .fnode .t{font-family:var(--cond);font-weight:600;font-size:17px;display:block;margin-bottom:3px}
+  .fnode .t::after{content:" \2192";color:var(--muted);font-weight:500}
+  .fnode:last-child .t::after{content:""}
+  .fnode .d{color:var(--muted);font-size:14px;line-height:1.45;display:block}
+  .aside{color:var(--muted);font-size:15px;margin-top:14px}
+
+  .steps{list-style:none;counter-reset:s;padding:0;margin:18px 0 0}
+  .steps > li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:14px;margin-bottom:26px;max-width:none}
+  .steps > li::before{content:counter(s);font-family:var(--mono);font-size:13px;font-weight:500;color:var(--accent);border:1.5px solid var(--accent);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+  .steps .t{font-family:var(--cond);font-weight:600;font-size:18px;display:block;margin:2px 0 3px}
+  .steps .s{color:var(--muted);font-size:15px;display:block;max-width:68ch}
+  .steps .body{min-width:0}
+  .steps .s code{white-space:normal;overflow-wrap:anywhere}
+
+  .term{background:var(--term-bg);color:var(--term-ink);font-family:var(--mono);font-size:13px;line-height:1.6;padding:14px 16px;border-radius:8px;margin-top:10px;white-space:pre-wrap;word-break:break-word}
+  .term .ok{color:var(--term-ok)}
+  .term .cmd{color:#FFFFFF;font-weight:500}
+  .term .dim{color:var(--term-dim)}
+  .copy{margin-top:10px;display:inline-flex;align-items:center;gap:8px;font:600 14px var(--sans);color:#FFFFFF;background:var(--accent);border:0;border-radius:7px;padding:8px 16px;cursor:pointer}
+  .copy:hover{filter:brightness(1.08)}
+  .copy:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+  .note{font-size:13.5px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-top:8px}
+  footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+
+  @media (max-width:760px){
+    .stats{grid-template-columns:1fr 1fr}
+    .flow{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:560px){
+    body{font-size:15.5px}
+    .versus,.cards,.flow{grid-template-columns:1fr}
+    .steps > li{grid-template-columns:30px 1fr;gap:10px}
+  }
+  @media print{
+    @page{size:A4;margin:12mm}
+    html,body{background:#fff}
+    .copy{display:none}
+    section,.card,.stat,.fnode,.steps > li{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">xl <span>for Claude Code</span></div>
+    <div class="meta">Version 0.9 · September 2026 · by <b>Ignacio Elías</b> · <a href="https://github.com/Ignacioelias/xl">GitHub</a></div>
+  </div>
+
+  <header>
+    <p class="eyebrow">Open source · Windows · Apache-2.0</p>
+    <h1>xl makes Claude work on Excel the way an analyst would</h1>
+    <p class="lede">Claude Code can already help with Excel models if you know how to use it: <b>it explains how a model is built, pulls insights, edits inputs and builds think-cell-ready tabs.</b> Out of the box, though, the work is tedious. xl fixes that.</p>
+    <div class="versus">
+      <div class="vcol">
+        <h2>Claude on Excel by default</h2>
+        <ul>
+          <li>It's <b>slow</b>: the file is reloaded for every question.</li>
+          <li>It <b>hardcodes values</b> and does its own arithmetic.</li>
+          <li>It <b>doesn't say which cell</b> a number comes from.</li>
+          <li>It <b>misses errors</b> in the file.</li>
+          <li>It <b>burns tokens</b> finding its way around the workbook.</li>
+        </ul>
+      </div>
+      <div class="vcol xl">
+        <h2>Claude on Excel with xl</h2>
+        <ul>
+          <li>Answers in <b>about half the time</b> (median 35&nbsp;s → 19&nbsp;s per question).</li>
+          <li><b>No hardcoded values by default</b>: Claude writes formulas and Excel calculates them.</li>
+          <li><b>Every number cites its cell</b>, for example <span class="addr">Summary!D42</span>.</li>
+          <li><b>Checks that catch what it used to miss</b>: a full recalculation, 18 model checks and an open test.</li>
+          <li><b>Slightly lower API spend</b>, about 10% per question.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="pills">
+      <div class="pill">Reads the file once per session</div>
+      <div class="pill">Excel does the maths</div>
+      <div class="pill">Every number cites its cell</div>
+    </div>
+  </header>
+
+  <section>
+    <h2>The root of the problem</h2>
+    <p>Claude Code has no built-in way to read a spreadsheet. When you ask about a workbook, it writes a short Python script using <b>openpyxl</b> (a library that unzips the .xlsx and reads its XML), runs it, reads what it prints, and then the script ends. For the next question it writes a new script, which starts a new Python process that loads the whole file again. On a 50-sheet business plan that takes 13 to 18 seconds, every time.</p>
+    <p>openpyxl can see formulas as text, and it can see the values Excel stored the last time someone saved the file. It cannot calculate. So when a question needs a number that isn't already stored ("what if churn were 5%?"), plain Claude either rebuilds the model's logic in Python, where it can easily get the arithmetic wrong, or trusts stored values that may be out of date.</p>
+    <p><b>xl changes two things.</b> The workbook opens once and stays in memory, so each follow-up question is answered in about a second. And any number that matters is calculated by Excel itself, running hidden in the background, so the answer is what Excel would show, with the cell reference attached (for example <span class="addr">Summary!D42</span>) so you can check it yourself.</p>
+
+    <figure>
+      <div class="dg">
+        <svg viewBox="0 0 820 372" role="img" aria-label="Without xl, every question starts a new Python process that reloads the whole file. With xl, a short-lived command talks to a kernel that keeps the file in memory, sends calculations to a hidden Excel and runs the open test in a throwaway Excel.">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker>
+            <marker id="ahc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-cost"/></marker>
+            <marker id="ahk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-k"/></marker>
+            <marker id="ahm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-m"/></marker>
+          </defs>
+
+          <text x="10" y="22" class="lane">WITHOUT XL · REPEATED FOR EVERY QUESTION</text>
+          <rect x="10" y="40" width="110" height="48" rx="8" class="box"/>
+          <text x="65" y="69" text-anchor="middle" class="t">Claude Code</text>
+          <rect x="260" y="40" width="170" height="48" rx="8" class="box"/>
+          <text x="345" y="60" text-anchor="middle" class="t">New Python process</text>
+          <text x="345" y="77" text-anchor="middle" class="s">does its own arithmetic</text>
+          <rect x="600" y="40" width="210" height="48" rx="8" class="box-cost"/>
+          <text x="705" y="60" text-anchor="middle" class="t">model.xlsx on disk</text>
+          <text x="705" y="77" text-anchor="middle" class="s">10 MB, 50 sheets</text>
+          <line x1="120" y1="64" x2="256" y2="64" class="ln" marker-end="url(#ah)"/>
+          <text x="188" y="56" text-anchor="middle" class="lab">writes a script</text>
+          <line x1="430" y1="64" x2="596" y2="64" class="ln-cost" marker-end="url(#ahc)"/>
+          <text x="513" y="56" text-anchor="middle" class="lab-cost">full reload · 13–18 s</text>
+          <path d="M345,88 V112 H65 V92" class="ln-dash" marker-end="url(#ahm)"/>
+          <text x="205" y="128" text-anchor="middle" class="lab">process exits, memory is lost</text>
+
+          <line x1="10" y1="150" x2="810" y2="150" class="div"/>
+
+          <text x="10" y="176" class="lane">WITH XL · LOAD ONCE, ASK MANY</text>
+          <rect x="10" y="246" width="110" height="48" rx="8" class="box"/>
+          <text x="65" y="275" text-anchor="middle" class="t">Claude Code</text>
+          <rect x="175" y="246" width="110" height="48" rx="8" class="box"/>
+          <text x="230" y="266" text-anchor="middle" class="t">xl command</text>
+          <text x="230" y="283" text-anchor="middle" class="s">starts, sends, exits</text>
+          <rect x="350" y="190" width="130" height="160" rx="10" class="box-k"/>
+          <text x="415" y="250" text-anchor="middle" class="t">xl kernel</text>
+          <text x="415" y="268" text-anchor="middle" class="s">one per session</text>
+          <text x="415" y="284" text-anchor="middle" class="s">stays up 3 h idle</text>
+          <text x="415" y="300" text-anchor="middle" class="s">variables persist</text>
+          <rect x="600" y="190" width="210" height="44" rx="8" class="box-x"/>
+          <text x="705" y="208" text-anchor="middle" class="t">openpyxl copy in memory</text>
+          <text x="705" y="224" text-anchor="middle" class="s">formulas + last-saved values</text>
+          <rect x="600" y="248" width="210" height="44" rx="8" class="box-k"/>
+          <text x="705" y="266" text-anchor="middle" class="t">Hidden Excel (private)</text>
+          <text x="705" y="282" text-anchor="middle" class="s">manual calc, macros off</text>
+          <rect x="600" y="306" width="210" height="44" rx="8" class="box"/>
+          <text x="705" y="324" text-anchor="middle" class="t">Throwaway Excel</text>
+          <text x="705" y="340" text-anchor="middle" class="s">alerts on, killed after the test</text>
+          <line x1="120" y1="270" x2="171" y2="270" class="ln" marker-end="url(#ah)"/>
+          <text x="146" y="262" text-anchor="middle" class="lab">script</text>
+          <line x1="285" y1="270" x2="346" y2="270" class="ln" marker-end="url(#ah)"/>
+          <text x="316" y="262" text-anchor="middle" class="lab">TCP</text>
+          <line x1="480" y1="212" x2="596" y2="212" class="ln" marker-end="url(#ah)"/>
+          <text x="538" y="204" text-anchor="middle" class="lab">reads · ~1 s</text>
+          <line x1="480" y1="270" x2="596" y2="270" class="ln-k" marker-end="url(#ahk)"/>
+          <text x="538" y="262" text-anchor="middle" class="lab">computes</text>
+          <line x1="480" y1="328" x2="596" y2="328" class="ln" marker-end="url(#ah)"/>
+          <text x="538" y="320" text-anchor="middle" class="lab">open test</text>
+        </svg>
+      </div>
+      <figcaption>With xl, the kernel loads the file once and reloads it only when the file's date or size changes. Reading goes to openpyxl, and any number that has to be calculated goes to Excel. Before a file is handed over, a throwaway Excel with alerts switched on opens it to confirm there is no repair prompt.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>What you can ask it to do</h2>
+    <div class="cards">
+      <div class="card"><span class="q">“What is in this model?”</span><p>Lists sheets, main tables, named ranges and which sheets feed which. “Where is EBITDA?” finds every cell with that label.</p></div>
+      <div class="card"><span class="q">“Where does this number come from?”</span><p>Walks back through the formulas that feed a cell, or forward to everything that depends on it. Useful on a model someone else built.</p></div>
+      <div class="card"><span class="q">“What if churn were 5% instead of 4%?”</span><p>Changes the input, lets Excel recalculate, reports the outputs and restores everything. The original file is only saved if you ask for it.</p></div>
+      <div class="card"><span class="q">“Check this model for errors”</span><p>Recalculates the whole workbook in Excel, lists every error and stale value, runs 18 model checks and confirms the file opens without a repair prompt. It flags broken formulas, circular references hidden by iterative calculation, plugs and SUMs that miss a row.</p></div>
+      <div class="card wide"><span class="q">“Build the think-cell tab for this bridge”</span><p>Lays the feed out the way think-cell reads it (year row, blank spacer, check rows), writes the formulas without recalculating your model, and fills in their values so the chart shows the right numbers as soon as the file opens. Before handing over, it checks that every check row is zero and that Excel opens the file without a repair prompt.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Why xl matters</h2>
+    <p class="sub">Same questions, same model, without and with xl</p>
+    <div class="stats">
+      <div class="stat"><div class="change"><span class="old">90%</span><span class="arr">→</span><span class="new">100%</span></div><div class="label">Correct answers on 10 questions about a real 50-sheet business plan, checked against Excel</div></div>
+      <div class="stat"><div class="change"><span class="old">35 s</span><span class="arr">→</span><span class="new">19 s</span></div><div class="label">Median time per answered question</div></div>
+      <div class="stat"><div class="change"><span class="old">156 s</span><span class="arr">→</span><span class="new">44 s</span></div><div class="label">8 exploration questions run by script with no AI, 3.5× faster because the file isn't reopened</div></div>
+      <div class="stat"><div class="change"><span class="old">$1.78</span><span class="arr">→</span><span class="new">$1.61</span></div><div class="label">API spend per 10 questions (baseline is the average of two runs)</div></div>
+    </div>
+
+    <h3>What the evidence actually shows</h3>
+    <p>A benchmark of 10 questions on one real 50-sheet client plan (636k formulas), each answer checked against Excel by script. Claude Sonnet ran headless, once with Python and openpyxl only and once with xl.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Measure</th><th>Without xl</th><th>With xl</th><th>What it means</th></tr></thead>
+      <tbody>
+        <tr><td class="rowhead">Correct answers</td><td class="num">18 / 20</td><td class="num">10 / 10 final run<br>35 / 35 all runs</td><td>Both misses were the same question: "which cells reference <span class="addr">Summary!R45</span>?" Answering it means scanning every formula in 50 sheets. Plain Python started a background scan that never reported back, while xl answers it from its prebuilt index. The accuracy gain comes from this one type of question, the reverse lookup.</td></tr>
+        <tr><td class="rowhead">Turns per question (median)</td><td class="num">3 to 3.5</td><td class="num">3 final run<br>5 to 8 earlier</td><td>Without xl, Claude also needed about 3 turns. The drop to 3 with xl came from rewriting the skill that teaches Claude the tool.</td></tr>
+        <tr><td class="rowhead">Median time per question</td><td class="num">35 to 39 s</td><td class="num">19 s</td><td>Roughly half.</td></tr>
+        <tr><td class="rowhead">Cost per 10 questions</td><td class="num">$1.72 to $1.84</td><td class="num">$1.61</td><td>About 10% lower.</td></tr>
+        <tr><td class="rowhead">Scripted load test (8 questions, no AI)</td><td class="num">155.9 s</td><td class="num">44.0 s</td><td>Measures the kernel alone.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="method">Indicative: one model, one model family, one or two runs per condition, September 2026. The model is confidential, so these runs can't be reproduced from the repository.</p>
+  </section>
+
+  <section>
+    <h2>The 18 checks it performs</h2>
+    <p class="sub">They mirror errors found in real financial models</p>
+    <div class="chips">
+      <div class="chip">A named range pointing at deleted cells</div>
+      <div class="chip">A link out to another workbook, undocumented</div>
+      <div class="chip">A circular reference hidden by iterative calculation</div>
+      <div class="chip">Merged cells that break sort, filter and copy</div>
+      <div class="chip">Hidden rows or columns nobody remembers</div>
+      <div class="chip">An error value typed in as a constant</div>
+      <div class="chip">A formula pattern that breaks mid-row</div>
+      <div class="chip">A hardcoded number sitting between formulas</div>
+      <div class="chip">A number stored as text next to real numbers</div>
+      <div class="chip">A stale error cached from the last save</div>
+      <div class="chip">A SUM that stops one row short of the total</div>
+      <div class="chip">Two overlapping ranges summed into the same total</div>
+      <div class="chip">A formula silently treating a blank cell as zero</div>
+      <div class="chip">A chart series pointing at a sheet that's gone</div>
+      <div class="chip">An external link with an absolute path that will break</div>
+      <div class="chip">A SUM or AVERAGE silently skipping text cells</div>
+      <div class="chip">One formula quietly mixing two currencies</div>
+      <div class="chip">A currency figure added to a date</div>
+    </div>
+    <div class="callout"><p><b>A real example.</b> On one real business plan, the first run found 14 of 15 named ranges broken, more than 10,000 cells carrying a cached error, and a formula-pattern break on row 334 of every cohort sheet.</p></div>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <div class="flow">
+      <div class="fnode"><span class="t">You</span><span class="d">Ask Claude Code a question about a workbook, in plain English or Spanish.</span></div>
+      <div class="fnode"><span class="t">Claude Code</span><span class="d">Recognises the task and calls xl instead of writing one-off scripts.</span></div>
+      <div class="fnode"><span class="t">xl kernel</span><span class="d">Holds the workbook in memory. Finds, reads and traces in about a second per question.</span></div>
+      <div class="fnode engine"><span class="t">Excel engine</span><span class="d">A hidden, separate instance. Recalculates, runs what-ifs, renders ranges and test-opens the file.</span></div>
+    </div>
+    <p class="aside">After Claude edits a workbook, a quick check runs automatically and the findings go back to Claude before it reports the work as done. Excel runs in a private hidden instance, so your own Excel windows are never touched. Originals are never saved over by default: edits and what-ifs happen on working copies, and Claude only changes the original if you tell it to.</p>
+    <p class="aside">xl is a standalone command-line program with its own persistent kernel, so it keeps working if a given chat tool is unavailable. Every command runs the same way when typed by hand in a plain terminal, although using it that way takes some Python. Claude Code is one way to drive it: a lightweight skill teaches Claude when to reach for xl, and a hook runs a quick check after every edit. It is an independent open-source project, not an official Anthropic product.</p>
+  </section>
+
+  <section>
+    <h2>How to install</h2>
+    <p class="sub">Windows laptop with Excel and Claude Code · about 5 minutes</p>
+    <ol class="steps">
+      <li><div class="body">
+        <span class="t">Check you have what it needs</span>
+        <span class="s">Windows 10 or 11, desktop Excel and <a href="https://claude.com/claude-code">Claude Code</a>. The installer adds Python 3.14 if it is missing.</span>
+      </div></li>
+      <li><div class="body">
+        <span class="t">Open Claude Code and paste this prompt</span>
+        <span class="s">Any folder will do. The same prompt, the manual steps and everything the installer changes are in <a href="https://github.com/Ignacioelias/xl/blob/main/INSTALL.md">INSTALL.md</a>.</span>
+        <div class="term" id="prompt"><span class="cmd">Install xl on this machine and confirm it works.</span>
+1. Clone https://github.com/Ignacioelias/xl into %USERPROFILE%\tools\xl. If that folder already holds a clone of this repository, run git pull there instead. If it exists and is not a clone, stop and ask me.
+2. Run: powershell -ExecutionPolicy Bypass -File "%USERPROFILE%\tools\xl\install.ps1" -NoPause
+3. It must end with six PASS lines and "All checks passed." On any FAIL, show me the exact output and stop.
+4. Run `xl help` (fallback: py -3.14 "%USERPROFILE%\tools\xl\xlcli.py" help) and confirm it prints the command list.
+5. Tell me in three lines that xl is installed and what I can ask you now. Do not change anything else on my machine.</div>
+        <button class="copy" type="button" onclick="navigator.clipboard.writeText(document.getElementById('prompt').innerText).then(()=>{this.textContent='Copied'})">Copy prompt</button>
+      </div></li>
+      <li><div class="body">
+        <span class="t">Claude runs the installer for you</span>
+        <span class="s">It installs Python 3.14 if missing, copies the tool, registers the two Claude Code skills (xl and think-cell feeds) and the hook, and runs six checks with Excel. You want to see this in Claude's output:</span>
+        <div class="term"><span class="dim">[7/7] Checks</span>
+   <span class="ok">PASS</span>  Python packages (openpyxl, pywin32, pillow)
+   <span class="ok">PASS</span>  Excel reachable through COM
+   <span class="ok">PASS</span>  xl kernel starts and answers
+   <span class="ok">PASS</span>  Lint fixture: every rule fires on its planted defect
+   <span class="ok">PASS</span>  Excel opens the fixture without a repair prompt
+   <span class="ok">PASS</span>  Think-cell feeds: injected values read by Excel, no repair
+
+   <span class="ok">All checks passed.</span></div>
+      </div></li>
+      <li><div class="body">
+        <span class="t">Use it</span>
+        <span class="s">Start Claude Code in a folder with a workbook and ask: <i>“What is in this model, and does it have any errors?”</i> Claude picks up xl on its own, so there is no command to learn. A typical exchange looks like this:</span>
+        <div class="term"><span class="cmd">&gt; what is in this model and does it have errors?</span>
+<span class="dim">Reading Summary, Inputs, Engine (50 sheets)...
+Checks: 14 broken named ranges
+Recalculated in Excel: 3 #REF! cells
+Summary!D42  EBITDA 2028 = 12.4m ...</span></div>
+      </div></li>
+    </ol>
+    <p class="note">xl itself makes no network calls: your workbooks stay on your laptop, and Claude reads what xl prints through Claude Code as usual.</p>
+  </section>
+
+  <footer>© 2026 Ignacio Elías · <a href="https://github.com/Ignacioelias/xl/blob/main/LICENSE">Apache License 2.0</a> · Design credit: <a href="https://github.com/witanlabs/research-log">Witan Labs' research log</a> · Not affiliated with Anthropic</footer>
+
+</div>
+</body></html>

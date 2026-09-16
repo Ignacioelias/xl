@@ -1,0 +1,112 @@
+{
+  "_comment": "Sample spec for the synthetic model that selftest.py builds (sheets Inputs, 'Calc Q', Calc_A, Feed). One standard block inserted above an existing block, one waterfall appended at the end. Row numbers outside 'anchor' (donors, links into Feed) are the sheet's CURRENT rows.",
+  "version": 1,
+  "workbook": "model_under_test.xlsx",
+  "feed_sheet": "Feed",
+  "label_col": "B",
+  "first_col": "C",
+  "grids": {
+    "quarterly": {"sheet": "Calc Q", "year_row": 2, "first_col": "E", "last_col": "AB"},
+    "annual":    {"sheet": "Calc_A", "year_row": 2, "first_col": "E", "last_col": "N"}
+  },
+  "options": {"xl_session": "tcpipe", "check_tol": 1e-9},
+  "blocks": [
+    {
+      "id": "revenue",
+      "type": "standard",
+      "anchor": {"insert_before": "^Existing block 2"},
+      "title": "Revenue by segment | FY2021-FY2026 (EUR m)",
+      "notes": [
+        "SOURCE - 'Calc Q' rows 5-7 (quarterly, summed by year); the model's total is Calc_A row 9.",
+        "BASIS - EUR m nominal, calendar years; the A/F suffix comes from the model's own actual flag (Calc_A row 3)."
+      ],
+      "periods": {
+        "from": 2021, "to": 2026, "header": "formula",
+        "actual_flag": {"grid": "annual", "row": 3, "equals": 1, "suffix": ["A", "F"]}
+      },
+      "donor": {"title": 3, "header": 4, "data": 6, "memo": 9, "check": 8},
+      "format": "number",
+      "rows": [
+        {"key": "seg_a", "label": "Segment A", "formula": {"fn": "sumifs", "grid": "quarterly", "row": 5}},
+        {"key": "seg_b", "label": "Segment B", "formula": {"fn": "sumifs", "grid": "quarterly", "row": 6}},
+        {"key": "seg_c", "label": "Segment C", "formula": {"fn": "sumifs", "grid": "quarterly", "row": 7}},
+        {"blank": true},
+        {"key": "total", "kind": "memo", "label": "Memo - total revenue, sum of the segments (EUR m)",
+         "formula": {"fn": "sum_rows", "keys": ["seg_a", "seg_b", "seg_c"]}},
+        {"key": "total_model", "kind": "memo", "label": "Memo - total revenue as the model reports it (EUR m)",
+         "formula": {"fn": "index_match", "grid": "annual", "row": 9}},
+        {"key": "total_label", "kind": "memo", "label": "Memo - rows tagged 'Revenue' on Calc_A (EUR m)",
+         "formula": {"fn": "sumifs_label", "grid": "annual", "label_col": "C", "label": "Revenue",
+                     "first_row": 5, "last_row": 9}},
+        {"key": "cum", "kind": "memo", "label": "Memo - cumulative revenue FY2021 to the column's year (EUR m)",
+         "formula": {"fn": "window", "grid": "quarterly", "rows": [5, 6, 7], "y0": 2021}},
+        {"key": "share_a", "kind": "memo", "format": "pct", "label": "Memo - Segment A, % of the same year's revenue",
+         "formula": {"fn": "ratio", "num": "seg_a", "den": "total"}},
+        {"key": "cust", "kind": "memo", "format": "number0", "label": "Memo - customers at year end ('000)",
+         "formula": {"fn": "year_end", "grid": "quarterly", "row": 10}},
+        {"key": "cust_q4", "kind": "memo", "format": "number0", "label": "Memo - customers in Q4 via INDEX/MATCH+3 ('000)",
+         "formula": {"fn": "index_match", "grid": "quarterly", "row": 10, "offset": 3}},
+        {"key": "sparse_ye", "kind": "memo", "format": "number0", "label": "Memo - sparse stock at year end ('000)",
+         "formula": {"fn": "year_end", "grid": "quarterly", "row": 11}},
+        {"key": "sparse_q4", "kind": "memo", "format": "number0", "label": "Memo - sparse stock in Q4 via INDEX/MATCH+3 ('000)",
+         "formula": {"fn": "index_match", "grid": "quarterly", "row": 11, "offset": 3}},
+        {"key": "cost_c", "kind": "memo", "format": "number0", "label": "Memo - Segment C shown as a cost (EUR k, negated)",
+         "formula": {"fn": "sumifs", "grid": "quarterly", "row": 7, "scale": 0.001, "sign": -1}},
+        {"key": "scen", "kind": "memo", "format": "text", "only_first": true, "label": "Memo - scenario running",
+         "formula": {"fn": "link", "ref": "Inputs!$C$2"}},
+        {"key": "prev_total", "kind": "memo", "only_first": true, "label": "Memo - FY2021 total from existing block 1 (EUR m)",
+         "formula": {"fn": "link", "ref": "Feed!$C$6"}},
+        {"key": "prev_cust", "kind": "memo", "format": "number0", "only_first": true,
+         "label": "Memo - FY2021 customers from existing block 2 ('000)",
+         "formula": {"fn": "link", "ref": "Feed!$C$14"}},
+        {"blank": true},
+        {"kind": "check", "label": "Check (=0) - the three segments tie to the model's total revenue",
+         "formula": {"fn": "tie", "total": "total_model", "parts": ["seg_a", "seg_b", "seg_c"]}},
+        {"kind": "check", "label": "Check (=0) - rows tagged 'Revenue' tie to the sum of the segments",
+         "formula": {"fn": "combine", "terms": [{"key": "total_label"}, {"key": "total", "coef": -1}]}},
+        {"kind": "check", "label": "Check (=0) - year-end customers equal the Q4 read",
+         "formula": {"fn": "combine", "terms": [{"key": "cust"}, {"key": "cust_q4", "coef": -1}]}},
+        {"kind": "check", "label": "Check (=0) - sparse stock: LOOKUP and INDEX agree",
+         "formula": {"fn": "combine", "terms": [{"key": "sparse_ye"}, {"key": "sparse_q4", "coef": -1}]}},
+        {"kind": "check", "only_first": true,
+         "label": "Check (=0) - the quarterly grid holds 24 columns for FY2021-FY2026",
+         "formula": {"fn": "colcount", "grid": "quarterly", "y0": 2021, "y1": 2026, "expect": 24}},
+        {"kind": "check", "label": "Check (=0) - model total less the quarterly total row, summed by year",
+         "formula": {"fn": "combine", "terms": [{"key": "total_model"},
+                                                {"fn": "sumifs", "grid": "quarterly", "row": 8, "coef": -1}]}},
+        {"kind": "check", "label": "Check (=0) - customers from existing block 2 equal the FY2021 year-end read",
+         "only_first": true,
+         "formula": {"fn": "combine", "terms": [{"key": "prev_cust"}, {"key": "cust", "coef": -1}]}}
+      ]
+    },
+    {
+      "id": "bridge",
+      "type": "waterfall",
+      "anchor": {"append": true},
+      "title": "Revenue bridge by segment | FY2022 to FY2026 (EUR m)",
+      "notes": [
+        "SOURCE - Calc_A rows 5-7 (segments) and row 9 (the model's total revenue).",
+        "BASIS - EUR m nominal. Opening and closing years are the blue inputs; every step is a segment's change between them. Segment C is split into its FY2023 launch level and the growth after it."
+      ],
+      "open": {"year": 2022},
+      "close": {"year": 2026},
+      "period_inputs": true,
+      "header_label": "Revenue bridge",
+      "format": "waterfall1",
+      "donor": {"title": 3, "check": 8},
+      "segments": [
+        {"key": "a", "label": "Segment A", "value": {"fn": "index_match", "grid": "annual", "row": 5}},
+        {"key": "b", "label": "Segment B", "value": {"fn": "index_match", "grid": "annual", "row": 6}},
+        {"key": "c", "label": "Segment C", "value": {"fn": "index_match", "grid": "annual", "row": 7}}
+      ],
+      "steps": [
+        {"label": "Segment A growth", "segment": "a"},
+        {"label": "Segment B growth", "segment": "b"},
+        {"label": "Segment C launch (FY2023 level)", "segment": "c",
+         "formula": {"fn": "index_match", "grid": "annual", "row": 7, "year": "$open+1"}},
+        {"label": "Segment C growth after launch", "segment": "c"}
+      ],
+      "total": {"fn": "index_match", "grid": "annual", "row": 9}
+    }
+  ]
+}

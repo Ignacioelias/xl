@@ -1,0 +1,27 @@
+[project]
+name = "xl"
+version = "0.9.0"
+description = "Persistent workbook kernel and Excel verifiers that let Claude Code work on Excel models the way an analyst would (Windows)"
+readme = "README.md"
+license = "Apache-2.0"
+authors = [{ name = "Ignacio Elías" }]
+requires-python = ">=3.12"
+dependencies = [
+    "openpyxl>=3.1,<4",
+    "pywin32>=306; sys_platform == 'win32'",
+    "pillow>=10",
+]
+
+[project.urls]
+Homepage = "https://github.com/Ignacioelias/xl"
+Issues = "https://github.com/Ignacioelias/xl/issues"
+
+[project.scripts]
+xl = "xl.cli:main"
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["xl"]

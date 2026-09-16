@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.log
+*.xlsx
+*.xlsm
+*.pptx
+build/
+dist/
+*.egg-info/
+.venv/
+.playwright-mcp/
