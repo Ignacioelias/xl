@@ -306,7 +306,7 @@
         <tr><td class="rowhead">Turns per question (median)</td><td class="num">3 to 3.5</td><td class="num">3 final run<br>5 to 8 earlier</td><td>Without xl, Claude also needed about 3 turns. The drop to 3 with xl came from rewriting the skill that teaches Claude the tool.</td></tr>
         <tr><td class="rowhead">Median time per question</td><td class="num">35 to 39 s</td><td class="num">19 s</td><td>Roughly half.</td></tr>
         <tr><td class="rowhead">Cost per 10 questions</td><td class="num">$1.72 to $1.84</td><td class="num">$1.61</td><td>About 10% lower.</td></tr>
-        <tr><td class="rowhead">Scripted load test (8 questions, no AI)</td><td class="num">155.9 s</td><td class="num">44.0 s</td><td>Measures the kernel alone.</td></tr>
+        <tr><td class="rowhead">Scripted load test (8 questions, no AI)</td><td class="num">155.9 s</td><td class="num">44.0 s</td><td>Claude is left out, so this times only how fast the file is handled. xl keeps the workbook open between questions instead of reopening it for each one.</td></tr>
       </tbody>
     </table></div>
     <p class="method">Indicative: one model, one model family, one or two runs per condition, September 2026. The model is confidential, so these runs can't be reproduced from the repository.</p>
@@ -395,7 +395,7 @@ Summary!D42  EBITDA 2028 = 12.4m ...</span></div>
     <p class="note">xl itself makes no network calls: your workbooks stay on your laptop, and Claude reads what xl prints through Claude Code as usual.</p>
   </section>
 
-  <footer>© 2026 Ignacio Elías · <a href="https://github.com/Ignacioelias/xl/blob/main/LICENSE">Apache License 2.0</a> · Design credit: <a href="https://github.com/witanlabs/research-log">Witan Labs' research log</a> · Not affiliated with Anthropic</footer>
+  <footer>© 2026 Ignacio Elías · <a href="https://github.com/Ignacioelias/xl/blob/main/LICENSE">Apache License 2.0</a> · Not affiliated with Anthropic</footer>
 
 </div>
 </body></html>
