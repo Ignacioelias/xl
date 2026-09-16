@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/readme/hero-dark.png">
-  <img src="docs/readme/hero-light.png" width="100%" alt="xl is a Claude add-on that forces AI to work on Excel the way an analyst would. By default Claude in Excel is slow, hardcodes values, forgets to name the reference cell, misses mistakes and burns a lot of tokens. BCN TMT Labs fixes that: it cuts response time by 50 to 75%, forces Claude to never hardcode values by default, cites the reference cell for every number, doesn't miss mistakes, and cuts the token cost of working in Excel by about 10 to 20%.">
+  <img src="docs/readme/hero-light.png" width="100%" alt="xlsx is a Claude add-on that forces AI to work on Excel the way an analyst would. By default Claude in Excel is slow, hardcodes values, forgets to name the reference cell, misses mistakes and burns a lot of tokens. BCN TMT Labs fixes that: it cuts response time by 50 to 75%, forces Claude to never hardcode values by default, cites the reference cell for every number, doesn't miss mistakes, and cuts the token cost of working in Excel by about 10 to 20%.">
 </picture>
 
 **Needs:** Windows · desktop Excel · [Claude Code](https://claude.com/claude-code) &nbsp;|&nbsp;
@@ -19,17 +19,17 @@ saved the file. It cannot calculate. So when a question needs a number that isn'
 ("what if churn were 5%?"), plain Claude either rebuilds the model's logic in Python, where it can
 easily get the arithmetic wrong, or trusts stored values that may be out of date.
 
-**xl changes two things.** The workbook opens once and stays in memory, so each follow-up question
+**xlsx changes two things.** The workbook opens once and stays in memory, so each follow-up question
 is answered in about a second. And any number that matters is calculated by Excel itself, running
 hidden in the background, so the answer is what Excel would show, with the cell reference attached
 (for example `Summary!D42`) so you can check it yourself.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/readme/diagram-dark.png">
-  <img src="docs/readme/diagram-light.png" width="100%" alt="Without xl, Claude Code writes a script, a new Python process does its own arithmetic and fully reloads the 10 MB workbook (13 to 18 s), then exits and loses its memory; this repeats for every question. With xl, the short-lived xl command talks over TCP to the xl kernel, which stays up and keeps variables; the kernel reads from an openpyxl copy in memory in about a second, computes in a private hidden Excel, and runs the open test that gives you the Excel answer.">
+  <img src="docs/readme/diagram-light.png" width="100%" alt="Without xlsx, Claude Code writes a script, a new Python process does its own arithmetic and fully reloads the 10 MB workbook (13 to 18 s), then exits and loses its memory; this repeats for every question. With xlsx, the short-lived xl command talks over TCP to the xlsx kernel, which stays up and keeps variables; the kernel reads from an openpyxl copy in memory in about a second, computes in a private hidden Excel, and runs the open test that gives you the Excel answer.">
 </picture>
 
-*With xl, the kernel loads the file once and reloads it only when the file's date or size
+*With xlsx, the kernel loads the file once and reloads it only when the file's date or size
 changes. Reading goes to openpyxl, and any number that has to be calculated goes to Excel. Before
 a file is handed over, a throwaway Excel with alerts switched on opens it to confirm there is no
 repair prompt.*
@@ -41,11 +41,11 @@ repair prompt.*
   <img src="docs/readme/cards-light.png" width="100%" alt="What is in this model? Lists sheets, tables, named ranges and sheet links. Where does this number come from? Walks the formulas back or forward. What if churn were 5% instead of 4%? Excel recalculates and reports the outputs; the original is only saved if you ask. Check this model for errors: full recalculation, every error and stale value, 18 checks and an open test. Build the think-cell tab for this bridge: a feed laid out for think-cell with correct values before any recalculation, checked before handover.">
 </picture>
 
-Claude picks xl up on its own. You don't need to learn any commands.
+Claude picks xlsx up on its own. You don't need to learn any commands.
 
-## Why xl matters
+## Why xlsx matters
 
-Same questions, same model, without and with xl.
+Same questions, same model, without and with xlsx.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/readme/stats-dark.png">
@@ -56,12 +56,12 @@ Same questions, same model, without and with xl.
 
 A benchmark of 10 questions on one real 50-sheet client plan (636k formulas), each answer checked
 against Excel by script. Claude Sonnet ran headless, once with Python and openpyxl only and once
-with xl.
+with xlsx.
 
-| Measure | Without xl | With xl | What it means |
+| Measure | Without xlsx | With xlsx | What it means |
 |---|---|---|---|
-| Correct answers | 18 / 20 | 10 / 10 final run<br>35 / 35 all runs | Both misses were the same question: "which cells reference `Summary!R45`?" Answering it means scanning every formula in 50 sheets. Plain Python started a background scan that never reported back, while xl answers it from its prebuilt index. The accuracy gain comes from this one type of question, the reverse lookup. |
-| Turns per question (median) | 3 to 3.5 | 3 final run<br>5 to 8 earlier | Without xl, Claude also needed about 3 turns. The drop to 3 with xl came from rewriting the skill that teaches Claude the tool. |
+| Correct answers | 18 / 20 | 10 / 10 final run<br>35 / 35 all runs | Both misses were the same question: "which cells reference `Summary!R45`?" Answering it means scanning every formula in 50 sheets. Plain Python started a background scan that never reported back, while xlsx answers it from its prebuilt index. The accuracy gain comes from this one type of question, the reverse lookup. |
+| Turns per question (median) | 3 to 3.5 | 3 final run<br>5 to 8 earlier | Without xlsx, Claude also needed about 3 turns. The drop to 3 with xlsx came from rewriting the skill that teaches Claude the tool. |
 | Median time per question | 35 to 39 s | 19 s | Roughly half. |
 | Cost per 10 questions | $1.72 to $1.84 | $1.61 | About 10% lower. |
 | Time to answer the 10 questions | 610 to 1,021 s | 260 s | 57 to 75% faster. |
@@ -88,7 +88,7 @@ on its planted defect or a switched-off rule fires.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/readme/flow-dark.png">
-  <img src="docs/readme/flow-light.png" width="100%" alt="You ask Claude Code about a workbook, in English or Spanish. Claude Code recognises the task and calls xl. The xl kernel holds the workbook in memory and finds, reads and traces in about a second. The Excel engine, a hidden separate instance, recalculates, runs what-ifs, renders ranges and test-opens the file.">
+  <img src="docs/readme/flow-light.png" width="100%" alt="You ask Claude Code about a workbook, in English or Spanish. Claude Code recognises the task and calls xlsx. The xlsx kernel holds the workbook in memory and finds, reads and traces in about a second. The Excel engine, a hidden separate instance, recalculates, runs what-ifs, renders ranges and test-opens the file.">
 </picture>
 
 After Claude edits a workbook, a quick check runs automatically and the findings go back to Claude
@@ -96,17 +96,17 @@ before it reports the work as done. Excel runs in a private hidden instance, so 
 windows are never touched. Originals are never saved over by default: edits and what-ifs happen on
 working copies, and Claude only changes the original if you tell it to.
 
-xl is a standalone command-line program with its own persistent kernel, so it keeps working if a
+xlsx is a standalone command-line program (the command is `xl`) with its own persistent kernel, so it keeps working if a
 given chat tool is unavailable. Every command runs the same way when typed by hand in a plain
 terminal, although using it that way takes some Python. Claude Code is one way to drive it: the
-`xl-repl` skill teaches Claude when to reach for xl and gives it the full API before its first
+`xl-repl` skill teaches Claude when to reach for xlsx and gives it the full API before its first
 call, and a hook runs a quick check after every edit. It is an independent open-source project,
 not an official Anthropic product.
 
 **Under the hood.** The `xl` command is a thin client that passes Claude's script to a long-lived
 Python kernel (one per session, local TCP with a token, 3 h idle timeout) where the workbook is
 already loaded and variables persist. The kernel reloads a file only when its date or size
-changes. Calculation, what-ifs and rendering go to a hidden Excel that xl starts itself with
+changes. Calculation, what-ifs and rendering go to a hidden Excel that xlsx starts itself with
 manual calculation, macros off and alerts off; the open test uses a separate Excel with alerts on.
 The skill sets four rules: check for errors after every write, take numbers from Excel, cite
 `Sheet!Address` for every figure, and never edit an original in place.
@@ -194,6 +194,6 @@ The README images are rendered from [`docs/index.html`](docs/index.html) by
 ## Credits and licence
 
 The design follows the public research log by [Witan Labs](https://github.com/witanlabs/research-log).
-xl is an independent project and is not affiliated with Anthropic or Witan Labs.
+xlsx is an independent project and is not affiliated with Anthropic or Witan Labs.
 
 Apache License 2.0 · © 2026 Ignacio Elías. See [LICENSE](LICENSE) and [NOTICE](NOTICE).

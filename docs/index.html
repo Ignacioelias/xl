@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>xl: Excel verification for Claude Code</title>
+<title>xlsx: Excel verification for Claude Code</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans+Condensed:wght@500;600;700&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap">
@@ -57,7 +57,7 @@
 
   header{padding-block:30px 30px;border-bottom:1px solid var(--line)}
   .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted);margin:0 0 10px}
-  h1{font-family:var(--cond);font-weight:700;font-size:clamp(32px,5.6vw,46px);line-height:1.06;margin:0 0 16px;letter-spacing:-.01em;text-wrap:balance;max-width:20ch}
+  h1{font-family:var(--cond);font-weight:700;font-size:clamp(32px,5.6vw,46px);line-height:1.06;margin:0 0 16px;letter-spacing:-.01em;text-wrap:balance;max-width:22ch}
   .lede{font-size:18px;color:var(--muted);margin:0 0 22px}
   .lede b{color:var(--ink)}
   .versus{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -183,7 +183,7 @@
     <a href="#overview">Overview</a>
     <a href="#problem">The problem</a>
     <a href="#ask">What you can ask</a>
-    <a href="#evidence">Why xl matters</a>
+    <a href="#evidence">Why xlsx matters</a>
     <a href="#checks">18 checks</a>
     <a href="#how">How it works</a>
     <a href="#install" class="cta">Install</a>
@@ -192,13 +192,13 @@
 <div class="wrap">
 
   <div class="topbar">
-    <div class="brand">xl <span>for Claude Code</span></div>
+    <div class="brand">xlsx <span>for Claude Code</span></div>
     <div class="meta">Version 0.9 · September 2026 · by <b>BCN TMT Labs</b> · <a href="https://github.com/Ignacioelias/xl">GitHub</a></div>
   </div>
 
   <header id="overview">
     <p class="eyebrow">Open source · Windows · Apache-2.0</p>
-    <h1>xl is a Claude add-on that forces AI to work on Excel the way an analyst would</h1>
+    <h1>xlsx is a Claude <span style="white-space:nowrap">add-on</span> that forces AI to work on Excel the way an analyst would</h1>
     <p class="lede">Working with <b>Claude in Excel can be nice</b> if you know how to use it. <b>It can help you understand how a model is built, derive insights, edit inputs, generate think-cell-ready tabs, etc.</b> However, working with Claude in Excel by default is tedious:</p>
     <div class="versus">
       <div class="vcol">
@@ -234,11 +234,11 @@
     <h2>The root of the problem</h2>
     <p>Claude Code has no built-in way to read a spreadsheet.&nbsp;</p><p>When you ask about a workbook, it writes a short Python script using <b>Openpyxl</b> (a library that unzips the .xlsx and reads its XML), runs it, reads what it prints, and then the script ends.&nbsp;</p><p>For the next question it writes a new script, which starts a new Python process that loads the whole file again. On a large business plan that takes 13 to 18 seconds, every time.</p>
     <p><b>Openpyxl </b>can see formulas as text, and it can see the values Excel stored the last time someone saved the file. It cannot calculate.&nbsp;</p><p>So when a question needs a number that isn't already stored ("what if churn were 5%?"), plain Claude either rebuilds the model's logic in Python, where it can easily get the arithmetic wrong, or trusts stored values that may be out of date.</p>
-    <p><b>xl changes two things.</b> The workbook opens once and stays in memory, so each follow-up question is answered in about a second. And any number that matters is calculated by Excel itself, running hidden in the background, so the answer is what Excel would show, with the cell reference attached (for example <span class="addr">Summary!D42</span>) so you can check it yourself.</p>
+    <p><b>xlsx changes two things.</b> The workbook opens once and stays in memory, so each follow-up question is answered in about a second. And any number that matters is calculated by Excel itself, running hidden in the background, so the answer is what Excel would show, with the cell reference attached (for example <span class="addr">Summary!D42</span>) so you can check it yourself.</p>
 
     <figure>
       <div class="dg">
-        <svg viewBox="0 0 820 372" role="img" aria-label="Without xl, every question starts a new Python process that reloads the whole file. With xl, a short-lived command talks to a kernel that keeps the file in memory, sends calculations to a hidden Excel and runs the open test in a throwaway Excel.">
+        <svg viewBox="0 0 820 372" role="img" aria-label="Without xlsx, every question starts a new Python process that reloads the whole file. With xlsx, the short-lived xl command talks to a kernel that keeps the file in memory, sends calculations to a hidden Excel and runs the open test in a throwaway Excel.">
           <defs>
             <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"></path></marker>
             <marker id="ahc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-cost"></path></marker>
@@ -246,7 +246,7 @@
             <marker id="ahm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-m"></path></marker>
           </defs>
 
-          <text x="10" y="22" class="lane">WITHOUT XL · REPEATED FOR EVERY QUESTION</text>
+          <text x="10" y="22" class="lane">WITHOUT XLSX · REPEATED FOR EVERY QUESTION</text>
           <rect x="10" y="40" width="110" height="48" rx="8" class="box"></rect>
           <text x="65" y="69" text-anchor="middle" class="t">Claude Code</text>
           <rect x="260" y="40" width="170" height="48" rx="8" class="box"></rect>
@@ -264,14 +264,14 @@
 
           <line x1="10" y1="150" x2="810" y2="150" class="div"></line>
 
-          <text x="10" y="176" class="lane">WITH XL · LOAD ONCE, ASK MANY</text>
+          <text x="10" y="176" class="lane">WITH XLSX · LOAD ONCE, ASK MANY</text>
           <rect x="10" y="246" width="110" height="48" rx="8" class="box"></rect>
           <text x="65" y="275" text-anchor="middle" class="t">Claude Code</text>
           <rect x="175" y="246" width="110" height="48" rx="8" class="box"></rect>
           <text x="230" y="266" text-anchor="middle" class="t">xl command</text>
           <text x="230" y="283" text-anchor="middle" class="s">starts, sends, exits</text>
           <rect x="350" y="190" width="130" height="160" rx="10" class="box-k"></rect>
-          <text x="415" y="250" text-anchor="middle" class="t">xl kernel</text>
+          <text x="415" y="250" text-anchor="middle" class="t">xlsx kernel</text>
           <text x="415" y="268" text-anchor="middle" class="s">one per session</text>
           <text x="415" y="284" text-anchor="middle" class="s">stays up 3 h idle</text>
           <text x="415" y="300" text-anchor="middle" class="s">variables persist</text>
@@ -308,8 +308,8 @@
   </section>
 
   <section id="evidence">
-    <h2>Why xl matters</h2>
-    <p class="sub">Same questions, same model, without and with xl</p>
+    <h2>Why xlsx matters</h2>
+    <p class="sub">Same questions, same model, without and with xlsx</p>
     <div class="stats">
       <div class="stat"><div class="change"><span class="old">90%</span><span class="arr">→</span><span class="new">100%</span></div><div class="label">Correct answers on 10 questions about a real 50-sheet business plan, checked against Excel</div></div>
       <div class="stat"><div class="change"><span class="old">35 s</span><span class="arr">→</span><span class="new">19 s</span></div><div class="label">Median time per answered question</div></div>
@@ -318,12 +318,12 @@
     </div>
 
     <h3>What the evidence actually shows</h3>
-    <p>A benchmark of 10 questions on one real 50-sheet client plan (636k formulas), each answer checked against Excel by script. Claude Sonnet ran headless, once with Python and openpyxl only and once with xl.</p>
+    <p>A benchmark of 10 questions on one real 50-sheet client plan (636k formulas), each answer checked against Excel by script. Claude Sonnet ran headless, once with Python and openpyxl only and once with xlsx.</p>
     <div class="tbl"><table>
-      <thead><tr><th>Measure</th><th>Without xl</th><th>With xl</th><th>What it means</th></tr></thead>
+      <thead><tr><th>Measure</th><th>Without xlsx</th><th>With xlsx</th><th>What it means</th></tr></thead>
       <tbody>
-        <tr><td class="rowhead">Correct answers</td><td class="num">18 / 20</td><td class="num">10 / 10 final run<br>35 / 35 all runs</td><td>Both misses were the same question: "which cells reference <span class="addr">Summary!R45</span>?" Answering it means scanning every formula in 50 sheets. Plain Python started a background scan that never reported back, while xl answers it from its prebuilt index. The accuracy gain comes from this one type of question, the reverse lookup.</td></tr>
-        <tr><td class="rowhead">Turns per question (median)</td><td class="num">3 to 3.5</td><td class="num">3 final run<br>5 to 8 earlier</td><td>Without xl, Claude also needed about 3 turns. The drop to 3 with xl came from rewriting the skill that teaches Claude the tool.</td></tr>
+        <tr><td class="rowhead">Correct answers</td><td class="num">18 / 20</td><td class="num">10 / 10 final run<br>35 / 35 all runs</td><td>Both misses were the same question: "which cells reference <span class="addr">Summary!R45</span>?" Answering it means scanning every formula in 50 sheets. Plain Python started a background scan that never reported back, while xlsx answers it from its prebuilt index. The accuracy gain comes from this one type of question, the reverse lookup.</td></tr>
+        <tr><td class="rowhead">Turns per question (median)</td><td class="num">3 to 3.5</td><td class="num">3 final run<br>5 to 8 earlier</td><td>Without xlsx, Claude also needed about 3 turns. The drop to 3 with xlsx came from rewriting the skill that teaches Claude the tool.</td></tr>
         <tr><td class="rowhead">Median time per question</td><td class="num">35 to 39 s</td><td class="num">19 s</td><td>Roughly half.</td></tr>
         <tr><td class="rowhead">Cost per 10 questions</td><td class="num">$1.72 to $1.84</td><td class="num">$1.61</td><td>About 10% lower.</td></tr>
         <tr><td class="rowhead">Time to answer the 10 questions</td><td class="num">610 to 1,021 s</td><td class="num">260 s</td><td>57 to 75% faster.</td></tr>
@@ -362,12 +362,12 @@
     <h2>How it works</h2>
     <div class="flow">
       <div class="fnode"><span class="t">You</span><span class="d">Ask Claude Code a question about a workbook, in plain English or Spanish.</span></div>
-      <div class="fnode"><span class="t">Claude Code</span><span class="d">Recognises the task and calls xl instead of writing one-off scripts.</span></div>
-      <div class="fnode"><span class="t">xl kernel</span><span class="d">Holds the workbook in memory. Finds, reads and traces in about a second per question.</span></div>
+      <div class="fnode"><span class="t">Claude Code</span><span class="d">Recognises the task and calls xlsx instead of writing one-off scripts.</span></div>
+      <div class="fnode"><span class="t">xlsx kernel</span><span class="d">Holds the workbook in memory. Finds, reads and traces in about a second per question.</span></div>
       <div class="fnode engine"><span class="t">Excel engine</span><span class="d">A hidden, separate instance. Recalculates, runs what-ifs, renders ranges and test-opens the file.</span></div>
     </div>
     <p class="aside">After Claude edits a workbook, a quick check runs automatically and the findings go back to Claude before it reports the work as done. Excel runs in a private hidden instance, so your own Excel windows are never touched. Originals are never saved over by default: edits and what-ifs happen on working copies, and Claude only changes the original if you tell it to.</p>
-    <p class="aside">xl is a standalone command-line program with its own persistent kernel, so it keeps working if a given chat tool is unavailable. Every command runs the same way when typed by hand in a plain terminal, although using it that way takes some Python. Claude Code is one way to drive it: a lightweight skill teaches Claude when to reach for xl, and a hook runs a quick check after every edit. It is an independent open-source project, not an official Anthropic product.</p>
+    <p class="aside">xlsx is a standalone command-line program (the command is <code>xl</code>) with its own persistent kernel, so it keeps working if a given chat tool is unavailable. Every command runs the same way when typed by hand in a plain terminal, although using it that way takes some Python. Claude Code is one way to drive it: a lightweight skill teaches Claude when to reach for xlsx, and a hook runs a quick check after every edit. It is an independent open-source project, not an official Anthropic product.</p>
   </section>
 
   <section id="install">
@@ -404,7 +404,7 @@
       </div></li>
       <li><div class="body">
         <span class="t">Use it</span>
-        <span class="s">Start Claude Code in a folder with a workbook and ask: <i>“What is in this model, and does it have any errors?”</i> Claude picks up xl on its own, so there is no command to learn. A typical exchange looks like this:</span>
+        <span class="s">Start Claude Code in a folder with a workbook and ask: <i>“What is in this model, and does it have any errors?”</i> Claude picks up xlsx on its own, so there is no command to learn. A typical exchange looks like this:</span>
         <div class="term"><span class="cmd">&gt; what is in this model and does it have errors?</span>
 <span class="dim">Reading Summary, Inputs, Engine (50 sheets)...
 Checks: 14 broken named ranges
@@ -412,7 +412,7 @@ Recalculated in Excel: 3 #REF! cells
 Summary!D42  EBITDA 2028 = 12.4m ...</span></div>
       </div></li>
     </ol>
-    <p class="note">xl itself makes no network calls: your workbooks stay on your laptop, and Claude reads what xl prints through Claude Code as usual.</p>
+    <p class="note">xlsx itself makes no network calls: your workbooks stay on your laptop, and Claude reads what xlsx prints through Claude Code as usual.</p>
   </section>
 
   <footer>© 2026 BCN TMT Labs · <a href="https://github.com/Ignacioelias/xl/blob/main/LICENSE">Apache License 2.0</a> · Not affiliated with Anthropic</footer>
